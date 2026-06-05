@@ -1,4 +1,4 @@
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Serif+SC:wght@400;700&display=swap');
 
 body{min-height:100vh;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);font-family:'Playfair Display','Noto Serif SC',serif;overflow-x:hidden;padding-top:130px;cursor:none}
@@ -10,14 +10,14 @@ body{min-height:100vh;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)
 .top-bar .sub{font-size:.7rem;color:rgba(255,255,255,.35);font-style:italic;display:none}
 @media(min-width:640px){.top-bar .sub{display:inline}}
 .controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.effect-select{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:18px;color:#fff;font-family:inherit;font-size:.75rem;padding:5px 12px;cursor:none;outline:none;transition:all .3s;max-width:160px}
+.effect-select{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:18px;color:#fff;font-family:inherit;font-size:.75rem;padding:5px 12px;cursor:pointer;outline:none;transition:all .3s;max-width:160px}
 .effect-select:hover{background:rgba(255,255,255,.12);border-color:rgba(255,200,255,.3)}
 .effect-select option{background:#1a1740;color:#fff}
-.export-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:18px;color:rgba(255,255,255,.6);font-family:inherit;font-size:.7rem;padding:5px 10px;cursor:none;transition:all .3s}
+.export-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:18px;color:rgba(255,255,255,.6);font-family:inherit;font-size:.7rem;padding:5px 10px;cursor:pointer;transition:all .3s}
 .export-btn:hover{background:rgba(255,255,255,.14);color:#fff}
 
 /* ===== LITTLE PRINCE ===== */
-.little-prince{position:relative;width:40px;height:40px;cursor:none;transition:transform .3s ease;flex-shrink:0}
+.little-prince{position:relative;width:40px;height:40px;cursor:pointer;transition:transform .3s ease;flex-shrink:0}
 .little-prince:hover{transform:scale(1.15)}
 .little-prince svg{width:100%;height:100%;overflow:visible}
 .little-prince .scarf{animation:scarfWave 3s ease-in-out infinite alternate;transform-origin:30px 38px}
@@ -70,3 +70,34 @@ body{min-height:100vh;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)
 /* ===== MATCH LIST ===== */
 .match-item:hover{background:rgba(255,255,255,.1)!important;color:#fff!important}
 #matchList{border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 8px;background:rgba(0,0,0,.15)}
+
+/* ===== ANDROID ADAPTATION ===== */
+@media(max-width:480px){
+  body{padding-top:160px}
+  .top-bar{padding:8px 10px}
+  .top-bar h1{font-size:1.05rem}
+  .controls{gap:4px}
+  .effect-select{font-size:.7rem;padding:4px 8px;max-width:130px}
+  .search-input{width:90px;font-size:.7rem;padding:4px 8px}
+  .search-input:focus{width:120px}
+  .search-btn{font-size:.7rem;padding:4px 8px}
+  .export-btn{font-size:.65rem;padding:4px 8px}
+  .little-prince{width:34px;height:34px}
+}
+
+@media(max-width:380px){
+  body{padding-top:180px}
+  .top-bar h1{font-size:.9rem}
+  .controls{gap:3px}
+  .search-input{width:70px;font-size:.65rem}
+  .search-input:focus{width:100px}
+}
+
+/* ===== HIDE CURSOR ON TOUCH ===== */
+@media(hover:none){
+  .cursor-dot,.cursor-ring{display:none}
+}
+
+/* ===== QUOTE CARD TOUCH ===== */
+.quote-card{touch-action:manipulation}
+button{touch-action:manipulation}

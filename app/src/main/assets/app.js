@@ -36,10 +36,15 @@ function exportQuotes(){
     var cn = '"' + quotes[i].cn.replace(/"/g,'""') + '"';
     csv += quotes[i].num + ',' + en + ',' + cn + '\n';
   }
+  var fileName = 'all_quotes_' + new Date().toISOString().slice(0,10) + '.csv';
+  if(window.AndroidBridge){
+    window.AndroidBridge.downloadCSV(csv, fileName);
+    return;
+  }
   var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'all_quotes_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.download = fileName;
   a.click();
 }
 
@@ -71,7 +76,7 @@ function render(){
   var pageItems = filtered.slice(start, start + pageSize);
 
   var html='<div class="add-section" style="margin-bottom:20px">';
-  html+='<button id="addToggleBtn" style="width:100%;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.2);border-radius:20px;color:rgba(255,255,255,.5);font-family:inherit;font-size:.95rem;padding:14px;cursor:none;transition:all .3s">+ &#x6DFB;&#x52A0;&#x65B0;&#x7684;&#x52B1;&#x5FD7;&#x8BED;&#x5F55;</button>';
+  html+='<button id="addToggleBtn" style="width:100%;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.2);border-radius:20px;color:rgba(255,255,255,.5);font-family:inherit;font-size:.95rem;padding:14px;cursor:pointer;transition:all .3s">+ &#x6DFB;&#x52A0;&#x65B0;&#x7684;&#x52B1;&#x5FD7;&#x8BED;&#x5F55;</button>';
   html+='<div id="addForm" style="display:none;margin-top:16px;background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px">';
   html+='<h3 style="color:#fff;font-size:1.1rem;margin-bottom:16px;font-weight:400" id="formTitle">&#x65B0;&#x589E;&#x8BED;&#x5F55;</h3>';
   html+='<input id="addEn" placeholder="English quote" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;margin-bottom:10px;outline:none">';
@@ -79,9 +84,9 @@ function render(){
   html+='<div id="matchList" style="font-size:.8rem;margin-bottom:8px;display:none"></div>';
   html+='<div id="dupWarning" style="font-size:.8rem;color:#ffcc66;margin-bottom:8px;display:none">&#x26A0; &#x8FD9;&#x53E5;&#x8BDD;&#x5DF2;&#x5B58;&#x5728;&#xFF0C;&#x70B9;&#x201C;&#x4FDD;&#x5B58;&#x201D;&#x4F1A;&#x65B0;&#x589E;&#x4E00;&#x6761;&#x91CD;&#x590D;&#x7684;</div>';
   html+='<div style="display:flex;gap:10px">';
-  html+='<button id="addSubmit" style="flex:1;background:linear-gradient(135deg,rgba(200,150,255,.3),rgba(150,200,255,.3));border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;font-family:inherit;font-size:.9rem;padding:10px;cursor:none;transition:all .3s">&#x4FDD;&#x5B58;</button>';
-  html+='<button id="addCancel" style="flex:0 0 auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.5);font-family:inherit;font-size:.9rem;padding:10px 16px;cursor:none;transition:all .3s">&#x53D6;&#x6D88;</button>';
-  html+='<button id="addReset" style="flex:0 0 auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.5);font-family:inherit;font-size:.9rem;padding:10px 16px;cursor:none;transition:all .3s">&#x91CD;&#x7F6E;</button>';
+  html+='<button id="addSubmit" style="flex:1;background:linear-gradient(135deg,rgba(200,150,255,.3),rgba(150,200,255,.3));border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;font-family:inherit;font-size:.9rem;padding:10px;cursor:pointer;transition:all .3s">&#x4FDD;&#x5B58;</button>';
+  html+='<button id="addCancel" style="flex:0 0 auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.5);font-family:inherit;font-size:.9rem;padding:10px 16px;cursor:pointer;transition:all .3s">&#x53D6;&#x6D88;</button>';
+  html+='<button id="addReset" style="flex:0 0 auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.5);font-family:inherit;font-size:.9rem;padding:10px 16px;cursor:pointer;transition:all .3s">&#x91CD;&#x7F6E;</button>';
   html+='</div><div id="formStatus" style="font-size:.8rem;margin-top:8px;color:rgba(255,255,255,.5);text-align:center"></div></div></div>';
 
   if(pageItems.length === 0){
@@ -93,11 +98,11 @@ function render(){
       '<div style="font-size:.8rem;color:rgba(255,255,255,.25);letter-spacing:2px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">'+
         '<span>'+q.num+'</span>'+
         '<div style="display:flex;gap:4px">'+
-          '<button class="like-btn" data-id="'+q._id+'" style="display:inline-flex;align-items:center;gap:4px;color:'+(liked?'#ff6b8a':'rgba(255,255,255,.25)')+';font-size:.8rem;cursor:none;transition:all .3s ease;background:none;border:none;font-family:inherit;padding:3px 8px;border-radius:16px">'+
+          '<button class="like-btn" data-id="'+q._id+'" style="display:inline-flex;align-items:center;gap:4px;color:'+(liked?'#ff6b8a':'rgba(255,255,255,.25)')+';font-size:.8rem;cursor:pointer;transition:all .3s ease;background:none;border:none;font-family:inherit;padding:3px 8px;border-radius:16px">'+
             '<span>'+(liked?'\u2764':'\u2661')+'</span> <span class="lc">'+(likeCnt[q._id]||0)+'</span>'+
           '</button>'+
-          '<button class="edit-btn" data-id="'+q._id+'" style="color:rgba(255,255,255,.25);font-size:.75rem;cursor:none;transition:all .3s;background:none;border:none;font-family:inherit;padding:3px 8px;border-radius:16px">&#x270E;</button>'+
-          '<button class="del-btn" data-id="'+q._id+'" style="color:rgba(255,255,255,.25);font-size:.75rem;cursor:none;transition:all .3s;background:none;border:none;font-family:inherit;padding:3px 8px;border-radius:16px">&#x2716;</button>'+
+          '<button class="edit-btn" data-id="'+q._id+'" style="color:rgba(255,255,255,.25);font-size:.75rem;cursor:pointer;transition:all .3s;background:none;border:none;font-family:inherit;padding:3px 8px;border-radius:16px">&#x270E;</button>'+
+          '<button class="del-btn" data-id="'+q._id+'" style="color:rgba(255,255,255,.25);font-size:.75rem;cursor:pointer;transition:all .3s;background:none;border:none;font-family:inherit;padding:3px 8px;border-radius:16px">&#x2716;</button>'+
         '</div>'+
       '</div>'+
       '<div class="quote-en" style="font-size:1.4rem;font-style:italic;color:#f0e6ff;line-height:1.7;margin-bottom:14px">'+q.en+'</div>'+
@@ -193,8 +198,8 @@ function bindUI(){
         '<input class="edit-en-input" value="'+escHtml(q.en)+'" placeholder="English quote" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;margin-bottom:10px;outline:none">'+
         '<textarea class="edit-cn-input" placeholder="&#x4E2D;&#x6587;&#x7FFB;&#x8BD1;" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;color:#fff;font-family:inherit;font-size:.9rem;margin-bottom:12px;outline:none;resize:vertical;min-height:50px">'+escHtml(q.cn)+'</textarea>'+
         '<div style="display:flex;gap:10px">'+
-        '<button class="save-inline" data-id="'+id+'" style="flex:1;background:linear-gradient(135deg,rgba(200,150,255,.3),rgba(150,200,255,.3));border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;font-family:inherit;font-size:.9rem;padding:10px;cursor:none;transition:all .3s">&#x4FDD;&#x5B58;</button>'+
-        '<button class="cancel-inline" data-id="'+id+'" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.5);font-family:inherit;font-size:.9rem;padding:10px 16px;cursor:none;transition:all .3s">&#x53D6;&#x6D88;</button>'+
+        '<button class="save-inline" data-id="'+id+'" style="flex:1;background:linear-gradient(135deg,rgba(200,150,255,.3),rgba(150,200,255,.3));border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;font-family:inherit;font-size:.9rem;padding:10px;cursor:pointer;transition:all .3s">&#x4FDD;&#x5B58;</button>'+
+        '<button class="cancel-inline" data-id="'+id+'" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.5);font-family:inherit;font-size:.9rem;padding:10px 16px;cursor:pointer;transition:all .3s">&#x53D6;&#x6D88;</button>'+
         '</div></div>';
     });
   });
