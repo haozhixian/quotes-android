@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Quotes · 名言</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+  <div id="title">
+    <h1>✨ Quotes · 名言 ✨</h1>
+    <p class="subtitle">A bilingual collection of wisdom</p>
+  </div>
+
+  <div id="controls">
+    <div id="search-area">
+      <input type="text" id="searchInput" placeholder="Search English / 搜索中文…" autocomplete="off">
+      <button id="searchBtn">🔍</button>
+    </div>
+    <div id="action-bar">
+      <select id="effectSelect">
+        <option value="none">No Effect</option>
+        <option value="starlight">Starlight</option>
+        <option value="meteor">Meteor</option>
+        <option value="fireflies">Fireflies</option>
+        <option value="aurora">Aurora</option>
+        <option value="petals">Petals</option>
+        <option value="matrix">Matrix Rain</option>
+        <option value="bokeh">Dreamy Bokeh</option>
+        <option value="all">All Combined</option>
+      </select>
+      <button id="exportBtn">📥 CSV</button>
+      <button id="littlePrinceBtn">🎲 Random</button>
+    </div>
+  </div>
+
+  <div id="matchPanel"></div>
+
+  <div id="quoteContainer"></div>
+
+  <div id="pagination"></div>
+
+  <div id="scrollBtns">
+    <button id="scrollDown">↓</button>
+    <button id="scrollUp">↑</button>
+  </div>
+</div>
+
+<div id="effectContainer"></div>
+
+<script>
+var INIT_QUOTES = [
+  {en:"The only way to do great work is to love what you do.",zh:"成就伟业的唯一途径是热爱你所做的事。"},
+  {en:"In the middle of difficulty lies opportunity.",zh:"困难之中蕴藏着机遇。"},
+  {en:"Life is what happens when you're busy making other plans.",zh:"生活就是当你忙于制定其他计划时发生的事。"},
+  {en:"The journey of a thousand miles begins with a single step.",zh:"千里之行，始于足下。"},
+  {en:"Be yourself; everyone else is already taken.",zh:"做你自己，其他角色都已被别人占了。"},
+  {en:"Two roads diverged in a wood, and I took the one less traveled by.",zh:"森林中分出两条路，我选择了人迹更少的那一条。"},
+  {en:"The only impossible journey is the one you never begin.",zh:"唯一不可能的旅程，是你从未开始的旅程。"},
+  {en:"It does not matter how slowly you go as long as you do not stop.",zh:"只要不停下，走得多慢都无所谓。"},
+  {en:"What lies behind us and what lies before us are tiny matters compared to what lies within us.",zh:"我们所经历的和将要面对的，比起我们内心所蕴藏的都不值一提。"},
+  {en:"The best time to plant a tree was 20 years ago. The second best time is now.",zh:"种树的最佳时间是二十年前，其次是现在。"},
+  {en:"Success is not final, failure is not fatal: it is the courage to continue that counts.",zh:"成功不是终点，失败也非末日，最重要的是继续前进的勇气。"},
+  {en:"We are what we repeatedly do. Excellence, then, is not an act, but a habit.",zh:"我们重复做什么，就会成为什么样的人。因此卓越不是一种行为，而是一种习惯。"},
+  {en:"Believe you can and you're halfway there.",zh:"相信自己能行，你就已经成功了一半。"},
+  {en:"The only person you are destined to become is the person you decide to be.",zh:"你注定成为的人，就是你决定成为的那个人。"},
+  {en:"Everything you've ever wanted is on the other side of fear.",zh:"你渴望的一切都在恐惧的另一边。"},
+  {en:"Whether you think you can or you think you can't, you're right.",zh:"无论你认为自己能还是不能，你都是对的。"},
+  {en:"The secret of getting ahead is getting started.",zh:"领先的秘诀就是开始行动。"},
+  {en:"Don't watch the clock; do what it does. Keep going.",zh:"不要看时钟，做时钟做的事：不断前进。"},
+  {en:"The mind is everything. What you think you become.",zh:"心念即一切。你思什么，你就成为什么。"},
+  {en:"Act as if what you do makes a difference. It does.",zh:"去做你认为能带来改变的事，它真的会带来改变。"},
+  {en:"Imagination is more important than knowledge.",zh:"想象力比知识更重要。"},
+  {en:"Life is really simple, but we insist on making it complicated.",zh:"生活其实很简单，但我们执意把它搞复杂。"},
+  {en:"The only true wisdom is in knowing you know nothing.",zh:"唯一的真智慧就是知道自己一无所知。"},
+  {en:"He who has a why to live for can bear almost any how.",zh:"知道了为什么而活的人，几乎能承受一切怎样活。"},
+  {en:"We are all in the gutter, but some of us are looking at the stars.",zh:"我们都身处沟渠，但总有人在仰望星空。"},
+  {en:"To be, or not to be, that is the question.",zh:"生存还是毁灭，这是个问题。"},
+  {en:"The unexamined life is not worth living.",zh:"未经审视的人生不值得过。"},
+  {en:"I came, I saw, I conquered.",zh:"我来，我见，我征服。"},
+  {en:"Fortune favors the bold.",zh:"命运眷顾勇者。"},
+  {en:"While there's life, there's hope.",zh:"有生命就有希望。"},
+  {en:"Knowledge is power.",zh:"知识就是力量。"},
+  {en:"To err is human; to forgive, divine.",zh:"犯错是人性，宽恕是神性。"},
+  {en:"Hope springs eternal in the human breast.",zh:"希望永远在人类心中涌现。"},
+  {en:"Simplicity is the ultimate sophistication.",zh:"简约是极致的精致。"},
+  {en:"The pen is mightier than the sword.",zh:"笔锋胜于剑刃。"},
+  {en:"Carpe diem, quam minimum credula postero.",zh:"活在当下，不要轻信明天。"},
+  {en:"All that glitters is not gold.",zh:"发光的不一定都是金子。"},
+  {en:"To thine own self be true.",zh:"对自己忠实。"},
+  {en:"Brevity is the soul of wit.",zh:"简洁是智慧的灵魂。"},
+  {en:"The course of true love never did run smooth.",zh:"真爱之路从来不平坦。"},
+  {en:"The best and most beautiful things in the world cannot be seen or even touched — they must be felt with the heart.",zh:"世上最美好最珍贵的东西是看不见也摸不着的，只能用心去感受。"},
+  {en:"Happiness is not something ready made. It comes from your own actions.",zh:"幸福不是现成的东西，它来自于你的行动。"},
+  {en:"Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.",zh:"不沉溺于过去，不空想未来，将心念集中在当下。"},
+  {en:"Peace comes from within. Do not seek it without.",zh:"平静来自内心，勿向外寻求。"},
+  {en:"Three things cannot be long hidden: the sun, the moon, and the truth.",zh:"三件事无法长久隐藏：太阳、月亮和真相。"},
+  {en:"Happiness is when what you think, what you say, and what you do are in harmony.",zh:"幸福就是所思、所言、所做和谐一致。"},
+  {en:"The world is a book and those who do not travel read only one page.",zh:"世界是一本书，不旅行的人只读了一页。"},
+  {en:"It is better to travel well than to arrive.",zh:"好的旅程比到达目的地更可贵。"},
+  {en:"Twenty years from now you will be more disappointed by the things you didn't do than by the ones you did do.",zh:"二十年后让你更失望的不是做过的事，而是没做的事。"},
+  {en:"In the end, it's not the years in your life that count. It's the life in your years.",zh:"到头来，重要的不是你活了几年，而是你怎样度过这些年。"},
+  {en:"The purpose of life is not to be happy. It is to be useful, to be honorable, to be compassionate.",zh:"人生的目的不是快乐，而是有意义、有尊严、有同情心。"},
+  {en:"Life is either a daring adventure or nothing at all.",zh:"生活要么是勇敢的冒险，要么什么都不是。"},
+  {en:"What we achieve inwardly will change outer reality.",zh:"我们内心的成就将改变外在的现实。"},
+  {en:"The greatest glory in living lies not in never falling, but in rising every time we fall.",zh:"人生最大的荣耀不在于从不跌倒，而在于每次跌倒后都能爬起来。"},
+  {en:"Stay hungry, stay foolish.",zh:"求知若饥，虚心若愚。"},
+  {en:"The future belongs to those who believe in the beauty of their dreams.",zh:"未来属于那些相信自己梦想之美的人。"},
+  {en:"It is during our darkest moments that we must focus to see the light.",zh:"最黑暗的时刻我们更要集中注意力去寻找光明。"},
+  {en:"Great minds discuss ideas; average minds discuss events; small minds discuss people.",zh:"伟大的人讨论思想，普通的人讨论事件，狭隘的人讨论他人。"},
+  {en:"The only limit to our realization of tomorrow is our doubts of today.",zh:"实现明天理想的唯一障碍是今天的怀疑。"},
+  {en:"Do what you can, with what you have, where you are.",zh:"在你所在之处，用你所有的一切，做你能做的事。"},
+  {en:"Success usually comes to those who are too busy to be looking for it.",zh:"成功通常眷顾那些忙得没空找它的人。"},
+  {en:"Change your thoughts and you change your world.",zh:"改变你的思想，你就改变了你的世界。"},
+  {en:"The only thing we have to fear is fear itself.",zh:"我们唯一需要恐惧的就是恐惧本身。"},
+  {en:"Ask not what your country can do for you — ask what you can do for your country.",zh:"不要问国家能为你做什么，而要问你能为国家做什么。"},
+  {en:"That's one small step for man, one giant leap for mankind.",zh:"这是我个人的一小步，却是人类的一大步。"},
+  {en:"I think, therefore I am.",zh:"我思故我在。"},
+  {en:"The greatest wealth is to live content with little.",zh:"最大的富足是知足常乐。"},
+  {en:"A room without books is like a body without a soul.",zh:"没有书的房间就像没有灵魂的身体。"},
+  {en:"The love of learning, the sequestered nooks, and all the sweet serenity of books.",zh:"对学习的热爱、幽静的角落、以及书籍带来的甜美宁静。"},
+  {en:"Books are a uniquely portable magic.",zh:"书是独一无二的便携魔法。"},
+  {en:"The more that you read, the more things you will know.",zh:"你读得越多，知道的就越多。"},
+  {en:"Life is like a box of chocolates, you never know what you're gonna get.",zh:"生活就像一盒巧克力，你永远不知道下一颗是什么味道。"},
+  {en:"Yesterday is history, tomorrow is a mystery, but today is a gift.",zh:"昨天是历史，明天是谜团，而今天是礼物。"},
+  {en:"Just keep swimming.",zh:"只管继续游。"},
+  {en:"To infinity and beyond!",zh:"飞向无限！"},
+  {en:"Hakuna matata — it means no worries.",zh:"哈库拉玛塔塔——意为无忧无虑。"},
+  {en:"The flower that blooms in adversity is the most rare and beautiful of all.",zh:"逆境中绽放的花朵最为珍贵美丽。"},
+  {en:"Remember who you are.",zh:"记住你是谁。"},
+  {en:"A dream is a wish your heart makes.",zh:"梦想是心灵的愿望。"},
+  {en:"The past can hurt, but the way I see it, you can either run from it or learn from it.",zh:"过去会伤人，但在我看来，你可以选择逃避它，或者从中学习。"},
+  {en:"Have courage and be kind.",zh:"勇敢且善良。"},
+  {en:"It's not until you lose everything that you can truly appreciate everything.",zh:"直到失去一切，你才能真正珍惜一切。"},
+  {en:"Music can change the world because it can change people.",zh:"音乐可以改变世界，因为它能改变人心。"},
+  {en:"Where words fail, music speaks.",zh:"当言语无法表达时，音乐会说话。"},
+  {en:"Without music, life would be a mistake.",zh:"没有音乐，人生将是一个错误。"},
+  {en:"The only thing better than singing is more singing.",zh:"比唱歌更好的事就是唱得更多。"},
+  {en:"Art enables us to find ourselves and lose ourselves at the same time.",zh:"艺术让我们同时找到自己和迷失自己。"},
+  {en:"Every child is an artist. The problem is how to remain an artist once he grows up.",zh:"每个孩子都是艺术家。问题是如何在长大后仍然是个艺术家。"},
+  {en:"Creativity takes courage.",zh:"创造力需要勇气。"},
+  {en:"Art washes away from the soul the dust of everyday life.",zh:"艺术洗去灵魂上日常生活的尘埃。"},
+  {en:"The purpose of art is washing the dust of daily life off our souls.",zh:"艺术的目的是洗去灵魂上的日常尘埃。"},
+  {en:"I am not what happened to me, I am what I choose to become.",zh:"我不是我的遭遇，我是我选择成为的样子。"},
+  {en:"The greatest discovery of all time is that a person can change his future by merely changing his attitude.",zh:"最伟大的发现是一个人只需改变态度就能改变未来。"},
+  {en:"Turn your wounds into wisdom.",zh:"把你的伤痛转化为智慧。"},
+  {en:"A person who never made a mistake never tried anything new.",zh:"从不犯错的人从未尝试过新事物。"},
+  {en:"Time you enjoy wasting, was not wasted.",zh:"你享受浪费的时光就不算浪费。"},
+  {en:"All our dreams can come true if we have the courage to pursue them.",zh:"只要有勇气去追求，我们所有的梦想都能成真。"},
+  {en:"Live as if you were to die tomorrow. Learn as if you were to live forever.",zh:"像明天就会死去那样活着，像永远不会死去那样学习。"},
+  {en:"The most important thing is to enjoy your life — to be happy — it's all that matters.",zh:"最重要的是享受生活——快乐——这才是一切。"},
+  {en:"In the end, we will remember not the words of our enemies, but the silence of our friends.",zh:"最后，我们记得的不是敌人的话语，而是朋友的沉默。"},
+];
+</script>
+<script src="app.js"></script>
+</body>
+</html>
